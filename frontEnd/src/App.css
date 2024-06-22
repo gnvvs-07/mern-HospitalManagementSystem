@@ -19,3 +19,46 @@ body{
   font-weight: 500;
   font-style: normal;
 }
+
+.sticky__header{
+  width: 100%;
+  height: 80px;
+  line-height: 80px;
+  position:sticky;
+  top:0;
+  z-index: 1000;
+  left:0;
+  box-shadow: 3px 3px -8px 3px #fff;
+}
+
+/* responsiveness */
+
+@media only screen and (max-width:768px){
+  .navigation{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top:0px;
+    left:0px;
+    z-index:100;
+    background: #00002404;
+    display: none;
+  }
+  .menu{
+    width: 15rem;
+    height: 100%;
+    position: absolute;
+    top:0px;
+    right: 0;
+    background-color: #fff;
+    z-index: 200;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 30px;
+  }
+  .show__menu{
+    display: block;
+  }
+
+}

@@ -51,7 +51,7 @@ export default function DoctorAbout() {
           <li className="flex flex-col sm:flex-row sm:justify-between sm:items-end md:gap-5 mb-[30px]">
             <div>
               <span className="text-irisBlueColor text-[15px] leading-6 font-semibold">
-                {formatDate("16-02-2001")} - {formatDate("19-02-2006")}
+                {formatDate("16-02-1998")} - {formatDate("19-02-2003")}
               </span>
               <p className="text-[16px] leading-6 font-medium text-textColor">
                 MBBS

@@ -6,7 +6,7 @@ import { CgMenuMotion } from "react-icons/cg";
 import { NavLink, Link } from "react-router-dom";
 const navLinks = [
   {
-    path: "/home",
+    path: "/",
     display: "Home",
   },
   {

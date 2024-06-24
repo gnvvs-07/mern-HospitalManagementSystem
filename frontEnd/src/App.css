@@ -53,3 +53,10 @@ body {
     display: block;
   }
 }
+
+@media only screen and (max-width:425px) {
+  .doc_details_display{
+    flex-direction: column;
+  }
+}
+

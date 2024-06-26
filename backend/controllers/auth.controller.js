@@ -1,6 +1,5 @@
 import User from "../models/UserSchema.js";
 import Doctor from "../models/DoctorSchema.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
 
@@ -10,7 +9,7 @@ export const register = async (req, res) => {
   try {
     // register logic
     let user = null;
-    // if user already exsits
+    // if user already exists
     if (role === "patient") {
       user = await User.findOne({ email });
     } else if (role === "doctor") {
@@ -45,13 +44,13 @@ export const register = async (req, res) => {
       });
     }
     // save the user
-    await user.save(); //user is either doctor or patient
-    res.status(200).json({
+    await user.save(); // user is either doctor or patient
+    res.status(201).json({
       success: true,
       message: "User created successfully",
     });
   } catch (error) {
-    console.log("error while registering");
+    console.error("Error while registering:", error.message);
     res.status(500).json({
       success: false,
       message: "Internal Server Error while creating user",
@@ -61,7 +60,7 @@ export const register = async (req, res) => {
 
 // login
 export const login = async (req, res) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
   try {
     // login logic
     let user = null;
@@ -77,7 +76,7 @@ export const login = async (req, res) => {
     if (doctor) {
       user = doctor;
     }
-    // if user doesnot exist
+    // if user does not exist
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -85,10 +84,7 @@ export const login = async (req, res) => {
       });
     }
     // comparing password for user
-    const isPasswordMatch = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
@@ -98,7 +94,7 @@ export const login = async (req, res) => {
     // generating a token
     const token = generateToken(user);
     // collect data from db
-    const { password, role, appointments, ...rest } = user._doc; //._doc gives all details in the db
+    const { password: _, role, ...rest } = user._doc; // ._doc gives all details in the db
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -107,6 +103,10 @@ export const login = async (req, res) => {
       role: role,
     });
   } catch (error) {
-    console.log("error while logging in");
+    console.error("Error while logging in:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error while logging in",
+    });
   }
 };

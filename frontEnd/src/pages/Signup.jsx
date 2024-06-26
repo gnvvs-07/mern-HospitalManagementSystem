@@ -1,10 +1,15 @@
-import { Link } from "react-router-dom";
-import avatar from "../assets/images/patient-avatar.png";
+// src/pages/Signup.jsx
+import { Link, useNavigate } from "react-router-dom";
 import signupImg from "../assets/images/signup.gif";
 import { useState } from "react";
+import uploadImageToCloudinary from "../utils/uploadCloudinary";
+import { toast } from "react-toastify";
+import HashLoader from "react-spinners/HashLoader";
+
 export default function Signup() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,17 +18,40 @@ export default function Signup() {
     gender: "",
     role: "patient",
   });
+  const navigate = useNavigate();
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const handleFileInputChange = async (e) => {
     const file = e.target.files[0];
-    console.log(file);
+    const data = await uploadImageToCloudinary(file);
+    setPreviewURL(data.url);
+    setSelectedFile(data.url);
+    setFormData({ ...formData, photo: data.url });
   };
-  // form submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // api call
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      toast.success(data.message);
+      setLoading(false);
+      navigate("/login");
+    } catch (error) {
+      toast.error("Registration failed");
+      setLoading(false);
+      console.log("Error in registration", error.message);
+    }
   };
   return (
     <section className="px-5 xl:px-6">
@@ -38,14 +66,14 @@ export default function Signup() {
           {/* form */}
           <div className="rounded-l-lg lg:pl-16 py-10">
             <h2 className="text-3xl font-bold mb-4">Sign up</h2>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-5">
                 <input
                   type="text"
                   name="name"
                   id="name"
-                  placeholder="your name "
-                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text "
+                  placeholder="your name"
+                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text"
                   onChange={handleInputChange}
                   value={formData.name}
                   required
@@ -59,7 +87,7 @@ export default function Signup() {
                   value={formData.email}
                   id="email"
                   placeholder="youremail@domain.com"
-                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text "
+                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text"
                   required
                 />
               </div>
@@ -69,7 +97,7 @@ export default function Signup() {
                   name="password"
                   id="password"
                   placeholder="Enter your password *********"
-                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text "
+                  className="placeholder:text-gray-400 w-full px-4 py-3 border-b border-solid border-teal-500 focus:outline-none focus:border-b-green-500 text-[15px] leading-7 cursor-text"
                   onChange={handleInputChange}
                   value={formData.password}
                   required
@@ -97,13 +125,11 @@ export default function Signup() {
 
                 <label
                   className="text-headingColor font-semibold text-[16px] leadin-7"
-                  htmlFor=""
                 >
                   Gender
                   <select
                     className="text-primaryColor font-semibold text-[15px] leading-7 p-3"
                     name="gender"
-                    id="gender"
                     onChange={handleInputChange}
                     value={formData.gender}
                   >
@@ -111,15 +137,20 @@ export default function Signup() {
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Rather Not specify</option>
-                    <option value="shit">LGBTQ</option>
                   </select>
                 </label>
               </div>
               {/* profile image */}
               <div className="mb-5 flex items-center gap-3">
-                <figure className="w-[60px] h-[60px] rounded-full border-solid border-primaryColor flex items-center justify-center">
-                  <img src={avatar} alt="" className="w-full rounded-full" />
-                </figure>
+                {selectedFile && (
+                  <figure className="w-[60px] h-[60px] rounded-full border-solid border-primaryColor flex items-center justify-center">
+                    <img
+                      src={previewURL}
+                      alt=""
+                      className="w-full rounded-full"
+                    />
+                  </figure>
+                )}
                 {/* file input */}
                 <div className="relative w-full max-w-[200px] h-[50px]">
                   <input
@@ -139,19 +170,20 @@ export default function Signup() {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <button className="btn mt-0">Sign Up</button>
+                <button className="btn mt-0" type="submit" disabled={loading}>
+                  {loading ? <HashLoader /> : "Create Account"}
+                </button>
                 {/* link for register */}
-                <p className=" text-textColor text-center">
-                  Have an account ,
+                <p className="text-textColor text-center">
+                  Have an account,
                   <Link
                     to="/login"
-                    className=" text-irisBlueColor hover:text-primaryColor"
+                    className="text-irisBlueColor hover:text-primaryColor"
                   >
                     Login
                   </Link>
                 </p>
               </div>
-
               {/* google auth */}
               <button className="w-full outline-teal-500 rounded-2xl mt-5 font-semibold bg-primaryColor text-white p-3">
                 continue with google

@@ -3,11 +3,11 @@ import avatar_img from "../assets/images/patient-avatar.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { authContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "../context/AuthContext.jsx";
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { dispatch } = useContext(authContext);
+  const { dispatch } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     // login function parameters
     email: "",
@@ -21,27 +21,30 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:8000/api/v1/auth/login", {
-        method: "POST",
+        method: "post",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
       const result = await res.json();
+      console.log(result,"this is result");
       if (!res.ok) {
         throw new Error(result.message || "Something went wrong");
       }
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: {
-          user: result.data,
+          user: result.user.email,
           token: result.token,
-          role: result.role,        //result is from the res.json()
+          role: result.role, //result is from the res.json()
+          photo:result.user.photo,
         },
       });
       toast.success(result.message);
       setLoading(false);
       navigate("/");
+      console.log(dispatch.type);
     } catch (error) {
       toast.error("Registration failed");
       setLoading(false);

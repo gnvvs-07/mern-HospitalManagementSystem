@@ -1,29 +1,20 @@
 import logo from "../../assets/images/logo.png";
 import userImg from "../../assets/images/avatar-icon.png";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import { CgMenuMotion } from "react-icons/cg";
-// navigation links handling
 import { NavLink, Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext.jsx";
+
 const navLinks = [
-  {
-    path: "/",
-    display: "Home",
-  },
-  {
-    path: "/doctors",
-    display: "Find a Doctor",
-  },
-  {
-    path: "/services",
-    display: "Services",
-  },
-  {
-    path: "/contact",
-    display: "Contact",
-  },
+  { path: "/", display: "Home" },
+  { path: "/doctors", display: "Find a Doctor" },
+  { path: "/services", display: "Services" },
+  { path: "/contact", display: "Contact" },
 ];
 
 export default function Header() {
+  const { user, token, role, photo, dispatch } = useContext(AuthContext);
+  console.log(photo)
   const headerRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -42,24 +33,21 @@ export default function Header() {
 
   useEffect(() => {
     handleStickyHeader();
-  });
+  }, []);
 
-  const toggleMenu = () =>{
+  const toggleMenu = () => {
     menuRef.current.classList.toggle("show__menu");
-  }
+  };
 
   return (
     <header className="header flex items-center" ref={headerRef}>
       <div className="container">
         <div className="flex items-center justify-between">
-          {/* logo */}
           <div>
             <img src={logo} alt="MEDICARE logo" />
           </div>
-          {/* menu */}
           <div className="navigation" ref={menuRef} onClick={toggleMenu}>
             <ul className="menu flex items-center gap-[2.7rem]">
-              {/* navigating */}
               {navLinks.map((link, index) => (
                 <li key={index}>
                   <NavLink
@@ -76,23 +64,23 @@ export default function Header() {
               ))}
             </ul>
           </div>
-          {/* nav-right side */}
           <div className="flex items-center gap-4">
-            {/* profile image and login button */}
-            <div>
-              <Link to="/">
-                <figure className="w-[35px] h-[35px] rounded-full cursor-pointer">
-                  <img src={userImg} alt="" className="w-full rounded-full" />
-                </figure>
+            {token && user ? (
+              <div>
+                <Link to={`${role==="doctor" ? '/doctors/profile/me':'/users/profile/me'}`}>
+                  <figure className="w-[35px] h-[35px] rounded-full cursor-pointer">
+                    <img src={photo} alt="profilepicnotloaded" className="w-full rounded-full" />
+                  </figure>
+                  <h1>{user}</h1>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/login">
+                <button className="bg-primaryColor py-2 px-7 items-center text-white font-[600] h-[44px] flex justify-center rounded-[50px]">
+                  Login
+                </button>
               </Link>
-            </div>
-            {/* login button */}
-            <Link to="/login">
-              <button className="bg-primaryColor py-2 px-7 items-center text-white font-[600] h-[44px] flex justify-center rounded-[50px]">
-                Login
-              </button>
-            </Link>
-            {/* menu */}
+            )}
             <span className="md:hidden" onClick={toggleMenu}>
               <CgMenuMotion className="h-6 w-6 cursor-pointer" />
             </span>

@@ -34,7 +34,7 @@ export default function Signup() {
     setLoading(true);
     try {
       const res = await fetch("http://localhost:8000/api/v1/auth/register", {
-        method: "POST",
+        method: "post",
         headers: {
           "Content-Type": "application/json",
         },
@@ -123,9 +123,7 @@ export default function Signup() {
                   </select>
                 </label>
 
-                <label
-                  className="text-headingColor font-semibold text-[16px] leadin-7"
-                >
+                <label className="text-headingColor font-semibold text-[16px] leadin-7">
                   Gender
                   <select
                     className="text-primaryColor font-semibold text-[15px] leading-7 p-3"
